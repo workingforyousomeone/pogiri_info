@@ -1,37 +1,47 @@
-// Import Express.js
 const express = require('express');
+const axios = require('axios');
+const app = express().use(express.json());
 
-// Create an Express app
-const app = express();
+const TOKEN = "69937b2b8e731f235a946992b217c0e4";
+const PHONE_ID = "1022576120942370"; // API Setup పేజీలో ఉంటుంది
 
-// Middleware to parse JSON bodies
-app.use(express.json());
+app.get('/webhook', (req, res) => {
+    const mode = req.query['hub.mode'];
+    const token = req.query['hub.verify_token'];
+    const challenge = req.query['hub.challenge'];
 
-// Set port and verify_token
-const port = process.env.PORT || 3000;
-const verifyToken = process.env.VERIFY_TOKEN;
-
-// Route for GET requests
-app.get('/', (req, res) => {
-  const { 'hub.mode': mode, 'hub.challenge': challenge, 'hub.verify_token': token } = req.query;
-
-  if (mode === 'subscribe' && token === verifyToken) {
-    console.log('WEBHOOK VERIFIED');
-    res.status(200).send(challenge);
-  } else {
-    res.status(403).end();
-  }
+    if (mode === 'subscribe' && token === "pogiri_gp_2026") {
+        res.status(200).send(challenge);
+    } else {
+        res.sendStatus(403);
+    }
 });
 
-// Route for POST requests
-app.post('/', (req, res) => {
-  const timestamp = new Date().toISOString().replace('T', ' ').slice(0, 19);
-  console.log(`\n\nWebhook received ${timestamp}\n`);
-  console.log(JSON.stringify(req.body, null, 2));
-  res.status(200).end();
+app.post('/webhook', async (req, res) => {
+    const entry = req.body.entry?.[0]?.changes?.[0]?.value;
+    const message = entry?.messages?.[0];
+
+    if (message && message.type === 'text') {
+        const from = message.from; 
+        const msgText = message.text.body;
+        console.log(`📩 మెసేజ్ వచ్చింది: ${msgText} from ${from}`);
+
+        try {
+            // వాట్సాప్ రిప్లై పంపడం
+            await axios.post(`https://graph.facebook.com/v22.0/${PHONE_ID}/messages`, {
+                messaging_product: "whatsapp",
+                to: from,
+                text: { body: "నమస్కారం! పొగిరి గ్రామ పంచాయతీ బాట్‌కు స్వాగతం. మీ వివరాలు త్వరలో అందుతాయి." }
+            }, { 
+                headers: { 'Authorization': `Bearer ${TOKEN}` } 
+            });
+            console.log("✅ రిప్లై పంపబడింది!");
+        } catch (error) {
+            console.error("❌ రిప్లై పంపడంలో ఎర్రర్:", error.response ? error.response.data : error.message);
+        }
+    }
+    res.sendStatus(200);
 });
 
-// Start the server
-app.listen(port, () => {
-  console.log(`\nListening on port ${port}\n`);
-});
+const PORT = process.env.PORT || 10000;
+app.listen(PORT, () => console.log(`🚀 బాట్ రన్ అవుతోంది...`));
