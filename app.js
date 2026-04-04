@@ -3,7 +3,7 @@ const axios = require('axios');
 const app = express().use(express.json());
 
 const TOKEN = "69937b2b8e731f235a946992b217c0e4";
-const PHONE_ID = "1022576120942370"; // API Setup పేజీలో ఉంటుంది
+const PHONE_ID = "1255459186145668"; // API Setup పేజీలో ఉంటుంది
 
 app.get('/webhook', (req, res) => {
     const mode = req.query['hub.mode'];
