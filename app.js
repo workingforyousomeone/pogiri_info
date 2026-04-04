@@ -43,5 +43,8 @@ app.post('/webhook', async (req, res) => {
     res.sendStatus(200);
 });
 
-const PORT = process.env.PORT || 10000;
-app.listen(PORT, () => console.log(`🚀 బాట్ రన్ అవుతోంది...`));
+// పాత 8080 తీసేసి ఇలా పెట్టండి
+const PORT = process.env.PORT || 10000; 
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 బాట్ పోర్ట్ ${PORT} లో రన్ అవుతోంది...`);
+});
