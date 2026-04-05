@@ -48,7 +48,7 @@ async function getVillageData(userInput, senderPhone) {
                    `👨‍💼 *తండ్రి/భర్త:* ${findRow[headers.indexOf("Guardian")]}\n` +
                    `🆔 *ఆధార్:* ${maskedAadhar}\n` +
                    `🆔 *ఫోన్:* ${findRow[headers.indexOf("Phone")]}\n` +
-                   `🏠 *భవనం:* ${findRow[headers.indexOf("Building Sq Feet")] గజాల ${findRow[headers.indexOf("Building Type")]} (${findRow[headers.indexOf("Usage")]})\n` +
+                   `🏠 *భవనం:* ${findRow[headers.indexOf("Building Sq Feet")]} గజాల ${findRow[headers.indexOf("Building Type")]} (${findRow[headers.indexOf("Usage")]})\n` +
                    `🏢 *అంతస్తులు:* ${findRow[headers.indexOf("Floors")]}\n` +
                    `📐 *స్థలం:* ${findRow[headers.indexOf("Site Sq Yards")]} గజాలు\n` +
                    `------------------------------------------\n` +
