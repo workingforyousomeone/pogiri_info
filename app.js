@@ -4,17 +4,38 @@ const app = express().use(express.json());
 
 const TOKEN = "EAANbuq79KEgBRJvS6tUXfzsCeV3B0rRiqrAH0Sf5PXdpOX2Jxnm9mdbzQ1KG7xxu3QgvNxSgPtlUbkIdKzomLA6JYt8V7PSRYZAD5ELeDQ2NzesPZCGLsnSL7c2n6OZCqdMhSXaugz0wpvGPLymqNLwdJZAcb7BtgYlbDZB0gwC64M2TdPRpPWIeajlSR8r4AYFGLvpWXNBPZCNwbdp2nIAWmfWZASMTZBU55pZBWrXuzTlkSPb8oGEh2AiwvN159FIfjI1b1btZAZAdTCW6NW0C312".trim(); 
 const PHONE_ID = "1022576120942370"; // మీ లాగ్స్ ప్రకారం ఇదే మీ ఫోన్ ఐడి
+// టెస్టింగ్ కోసం ఒక చిన్న డేటాబేస్ (Array)
+const pallaData = [
+    { id: "211320000001", name: "BURADA MANGANNA", phone: "9573322733", total: "323" },
+    { id: "211320000002", name: "YENUGUTHALA SRIRAM MURTHY", phone: "8186958188", total: "201" },
+    // ఇలా మీ డేటా అంతా ఇక్కడ ఉంటుంది...
+];
+
+
 
 app.post('/webhook', async (req, res) => {
     const entry = req.body.entry?.[0]?.changes?.[0]?.value;
     const message = entry?.messages?.[0];
 
     if (message && message.type === 'text') {
-        const from = message.from; 
-        const msgText = message.text.body;
-        console.log(`📩 మెసేజ్ వచ్చింది: ${msgText} from ${from}`);
+        const from = message.from;
+        const input = message.text.body.trim(); // యూజర్ పంపిన అసెస్మెంట్ నంబర్
 
-        try {
+        // డేటాలో వెతకడం
+        const result = pallaData.find(item => item.id === input || item.phone === input);
+
+        let replyMessage = "";
+        if (result) {
+            replyMessage = `📊 *పొగిరి గ్రామ పంచాయతీ వివరాలు*\n\n` +
+                           `👤 పేరు: ${result.name}\n` +
+                           `🆔 అసెస్మెంట్ నం: ${result.id}\n` +
+                           `💰 మొత్తం బకాయి: ₹${result.total}\n\n` +
+                           `దయచేసి మీ పన్నును సకాలంలో చెల్లించి గ్రామ అభివృద్ధికి సహకరించండి.`;
+        } else {
+            replyMessage = "క్షమించండి! ఆ నంబర్‌తో ఎటువంటి వివరాలు లేవు. దయచేసి సరైన అసెస్మెంట్ నంబర్ పంపండి.";
+        }
+
+                try {
             // వాట్సాప్ రిప్లై పంపడం
             const response = await axios({
                 method: "POST",
@@ -34,8 +55,9 @@ app.post('/webhook', async (req, res) => {
             console.error("❌ రిప్లై పంపడంలో ఎర్రర్:", error.response ? error.response.data : error.message);
         }
     }
-    res.sendStatus(200);
 });
+
+
 
 // వెరిఫికేషన్ కోసం (గతంలో మీరు చేసినట్లే ఉంచండి)
 app.get('/webhook', (req, res) => {
