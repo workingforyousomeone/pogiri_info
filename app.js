@@ -41,33 +41,28 @@ async function getVillageData(userInput, senderPhone) {
         if (findRow) {
             const fullAadhar = findRow[headers.indexOf("Aadhar")] || "N/A";
             const maskedAadhar = fullAadhar.length >= 4 ? `XXXX-XXXX-${fullAadhar.slice(-4)}` : "N/A";
-
-            return `🏛️ *పొగిరి గ్రామ పంచాయతీ - వివరాలు*
-            ------------------------------------------
-            📄 *అసెస్మెంట్ నం:* ${findRow[headers.indexOf("Assessment No")]}
-            👤 *యజమాని:* *${findRow[headers.indexOf("Name")]}*
-            👨‍💼 *తండ్రి/భర్త:* ${findRow[headers.indexOf("Guardian")]}
-            🆔 *ఆధార్:* ${maskedAadhar}
-            📞 *ఫోన్:* ${findRow[headers.indexOf("Phone")]}
-            
-            🏠 *భవన వివరాలు:*
-            • రకం: ${findRow[headers.indexOf("Building Type")]} (${findRow[headers.indexOf("Usage")]})
-            • నిర్మాణం: ${findRow[headers.indexOf("Building Sq Feet")]} చ.అడుగులు
-            • అంతస్తులు: ${findRow[headers.indexOf("Floors")]}
-            📐 *స్థలం:* ${findRow[headers.indexOf("Site Sq Yards")]} చ.గజాలు
-            
-            🧭 *సరిహద్దులు (Boundaries):*
-            📍 తూర్పు: ${findRow[headers.indexOf("East")]}
-            📍 పడమర: ${findRow[headers.indexOf("West")]}
-            📍 ఉత్తరం: ${findRow[headers.indexOf("North")]}
-            📍 దక్షిణం: ${findRow[headers.indexOf("South")]}
-            
-            ------------------------------------------
-            💰 *మొత్తం పన్ను:* ₹${findRow[headers.indexOf("Total Tax")]}
-            ✅ *వసూలు మొత్తం:* ₹${findRow[headers.indexOf("Coll Tax")]}
-            📌 *బకాయి:* ₹${Number(findRow[headers.indexOf("Total Tax")]) - Number(findRow[headers.indexOf("Coll Tax")])}
-            ------------------------------------------
-            🙏 *పన్ను సకాలంలో చెల్లించి గ్రామ అభివృద్ధికి సహకరించండి.*`;
+return `🏛️ *పొగిరి గ్రామ పంచాయతీ - వివరాలు*
+------------------------------------------
+📄 *అసెస్మెంట్ నం:* ${findRow[headers.indexOf("Assessment No")]}
+👤 *యజమాని:* *${findRow[headers.indexOf("Name")]}*
+👨‍💼 *తండ్రి/భర్త:* ${findRow[headers.indexOf("Guardian")]}
+🆔 *ఆధార్:* ${maskedAadhar}
+📞 *ఫోన్:* ${findRow[headers.indexOf("Phone")]}
+🏠 *భవన వివరాలు:*
+🏗️ *రకం:* ${findRow[headers.indexOf("Building Type")]} (${findRow[headers.indexOf("Usage")]})
+📐 *నిర్మాణం:* ${findRow[headers.indexOf("Building Sq Feet")]} అడుగులు | ${findRow[headers.indexOf("Floors")]} అంతస్తులు
+🔳 *స్థలం:* ${findRow[headers.indexOf("Site Sq Yards")]} చ.గజాలు
+🧭 *సరిహద్దులు (Boundaries):*
+📍 తూర్పు: ${findRow[headers.indexOf("East")]}
+📍 పడమర: ${findRow[headers.indexOf("West")]}
+📍 ఉత్తరం: ${findRow[headers.indexOf("North")]}
+📍 దక్షిణం: ${findRow[headers.indexOf("South")]}
+------------------------------------------
+💰 *మొత్తం పన్ను:* ₹${findRow[headers.indexOf("Total Tax")]}
+✅ *వసూలు మొత్తం:* ₹${findRow[headers.indexOf("Coll Tax")]}
+📌 *బకాయి:* ₹${Number(findRow[headers.indexOf("Total Tax")]) - Number(findRow[headers.indexOf("Coll Tax")])}
+------------------------------------------
+🙏 *పన్ను సకాలంలో చెల్లించి గ్రామ అభివృద్ధికి సహకరించండి.*`;
         }
         return null;
     } catch (error) {
