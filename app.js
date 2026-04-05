@@ -1,73 +1,107 @@
-const axios = require('axios');
 const express = require('express');
-const app = express().use(express.json());
+const axios = require('axios');
+const bodyParser = require('body-parser');
 
+const app = express();
+app.use(bodyParser.json());
+
+// --- మీ వివరాలు ఇక్కడ మార్చండి ---
 const TOKEN = "EAANbuq79KEgBRJvS6tUXfzsCeV3B0rRiqrAH0Sf5PXdpOX2Jxnm9mdbzQ1KG7xxu3QgvNxSgPtlUbkIdKzomLA6JYt8V7PSRYZAD5ELeDQ2NzesPZCGLsnSL7c2n6OZCqdMhSXaugz0wpvGPLymqNLwdJZAcb7BtgYlbDZB0gwC64M2TdPRpPWIeajlSR8r4AYFGLvpWXNBPZCNwbdp2nIAWmfWZASMTZBU55pZBWrXuzTlkSPb8oGEh2AiwvN159FIfjI1b1btZAZAdTCW6NW0C312".trim(); 
-const PHONE_ID = "1022576120942370"; // మీ లాగ్స్ ప్రకారం ఇదే మీ ఫోన్ ఐడి
-// టెస్టింగ్ కోసం ఒక చిన్న డేటాబేస్ (Array)
-const pallaData = [
-    { id: "211320000001", name: "BURADA MANGANNA", phone: "9573322733", total: "323" },
-    { id: "211320000002", name: "YENUGUTHALA SRIRAM MURTHY", phone: "8186958188", total: "201" },
-    // ఇలా మీ డేటా అంతా ఇక్కడ ఉంటుంది...
-];
+const PHONE_ID = "1022576120942370";
+const SPREADSHEET_ID = "1Odobo-H043KZKfYdNpeyMADeEa7wb-k-UyLXD1n_sBM";
+const VERIFY_TOKEN = "pogiri_gp_2026"; 
 
+// --- గూగుల్ షీట్ నుండి డేటా వెతికే ఫంక్షన్ ---
+async function getSheetData(userInput) {
+    try {
+        // షీట్‌ను CSV ఫార్మాట్‌లో డౌన్‌లోడ్ చేయడం (సులభమైన పద్ధతి)
+        const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv`;
+        const response = await axios.get(url);
+        const rows = response.data.split('\n').map(row => row.split(',').map(cell => cell.replace(/"/g, '').trim()));
 
+        // హెడర్ ఇండెక్స్‌లు కనుగొనడం
+        const headers = rows[0];
+        const assessIdx = headers.indexOf("Assessment No");
+        const nameIdx = headers.indexOf("Name");
+        const guardIdx = headers.indexOf("Guardian");
+        const phoneIdx = headers.indexOf("Phone");
+        const dy25Idx = headers.indexOf("DY2025-26");
+        const cy25Idx = headers.indexOf("CY2025-26");
 
-app.post('/webhook', async (req, res) => {
-    const entry = req.body.entry?.[0]?.changes?.[0]?.value;
-    const message = entry?.messages?.[0];
+        // యూజర్ పంపిన నంబర్ కోసం వెతకడం (Assessment No లేదా Phone)
+        const findRow = rows.find(r => r[assessIdx] === userInput || r[phoneIdx] === userInput);
 
-    if (message && message.type === 'text') {
-        const from = message.from;
-        const input = message.text.body.trim(); // యూజర్ పంపిన అసెస్మెంట్ నంబర్
-
-        // డేటాలో వెతకడం
-        const result = pallaData.find(item => item.id === input || item.phone === input);
-
-        let replyMessage = "";
-        if (result) {
-            replyMessage = `📊 *పొగిరి గ్రామ పంచాయతీ వివరాలు*\n\n` +
-                           `👤 పేరు: ${result.name}\n` +
-                           `🆔 అసెస్మెంట్ నం: ${result.id}\n` +
-                           `💰 మొత్తం బకాయి: ₹${result.total}\n\n` +
-                           `దయచేసి మీ పన్నును సకాలంలో చెల్లించి గ్రామ అభివృద్ధికి సహకరించండి.`;
-        } else {
-            replyMessage = "క్షమించండి! ఆ నంబర్‌తో ఎటువంటి వివరాలు లేవు. దయచేసి సరైన అసెస్మెంట్ నంబర్ పంపండి.";
+        if (findRow) {
+            return `📊 *పొగిరి గ్రామ పంచాయతీ వివరాలు*\n\n` +
+                   `👤 పేరు: *${findRow[nameIdx]}*\n` +
+                   `👨‍💼 తండ్రి/భర్త: ${findRow[guardIdx]}\n` +
+                   `🆔 అసెస్‌మెంట్ నం: ${findRow[assessIdx]}\n` +
+                   `--------------------------\n` +
+                   `💰 పాత బకాయి (DY): ₹${findRow[dy25Idx]}\n` +
+                   `📅 ప్రస్తుత పన్ను (CY): ₹${findRow[cy25Idx]}\n` +
+                   `✅ *మొత్తం చెల్లించాల్సింది: ₹${Number(findRow[dy25Idx]) + Number(findRow[cy25Idx])}*`;
         }
-
-                try {
-            // వాట్సాప్ రిప్లై పంపడం
-            const response = await axios({
-                method: "POST",
-                url: `https://graph.facebook.com/v22.0/${PHONE_ID}/messages`,
-                data: {
-                    messaging_product: "whatsapp",
-                    to: from,
-                    text: { body: "నమస్కారం! పొగిరి గ్రామ పంచాయతీ బాట్ పని చేస్తోంది. మీ వివరాలు త్వరలో అందుతాయి." }
-                },
-                headers: { 
-                    "Authorization": `Bearer ${TOKEN}`,
-                    "Content-Type": "application/json"
-                }
-            });
-            console.log("✅ రిప్లై విజయవంతంగా పంపబడింది!");
-        } catch (error) {
-            console.error("❌ రిప్లై పంపడంలో ఎర్రర్:", error.response ? error.response.data : error.message);
-        }
+        return null;
+    } catch (error) {
+        console.error("Sheet Error:", error.message);
+        return "error";
     }
-});
+}
 
-
-
-// వెరిఫికేషన్ కోసం (గతంలో మీరు చేసినట్లే ఉంచండి)
+// --- వెబ్‌హుక్ వెరిఫికేషన్ (GET) ---
 app.get('/webhook', (req, res) => {
-    const token = "pogiri_gp_2026";
-    if (req.query['hub.verify_token'] === token) {
+    if (req.query['hub.verify_token'] === VERIFY_TOKEN) {
         res.status(200).send(req.query['hub.challenge']);
     } else {
         res.sendStatus(403);
     }
 });
 
+// --- మెసేజ్ హ్యాండ్లింగ్ (POST) ---
+app.post('/webhook', async (req, res) => {
+    const entry = req.body.entry?.[0]?.changes?.[0]?.value;
+    const message = entry?.messages?.[0];
+
+    if (message && message.type === 'text') {
+        const from = message.from; 
+        const userInput = message.text.body.trim();
+
+        console.log(`📩 Request for: ${userInput}`);
+
+        // డేటా వెతకడం
+        const result = await getSheetData(userInput);
+
+        let replyText = "";
+        if (result === "error") {
+            replyText = "సర్వర్ ఇబ్బంది వల్ల డేటా దొరకలేదు. దయచేసి మళ్ళీ ప్రయత్నించండి.";
+        } else if (result) {
+            replyText = result;
+        } else {
+            replyText = "క్షమించండి! ఆ అసెస్‌మెంట్ నంబర్ లేదా ఫోన్ నంబర్‌తో ఎటువంటి వివరాలు లేవు. దయచేసి సరైన నంబర్ పంపండి.";
+        }
+
+        // వాట్సాప్ రిప్లై పంపడం
+        try {
+            await axios({
+                method: "POST",
+                url: `https://graph.facebook.com/v22.0/${PHONE_ID}/messages`,
+                data: {
+                    messaging_product: "whatsapp",
+                    to: from,
+                    text: { body: replyText }
+                },
+                headers: { 
+                    "Authorization": `Bearer ${TOKEN}`,
+                    "Content-Type": "application/json"
+                }
+            });
+            console.log("✅ Reply Sent!");
+        } catch (err) {
+            console.error("❌ Send Error:", err.response ? err.response.data : err.message);
+        }
+    }
+    res.sendStatus(200);
+});
+
 const PORT = process.env.PORT || 10000;
-app.listen(PORT, () => console.log(`🚀 బాట్ సిద్ధంగా ఉంది!`));
+app.listen(PORT, () => console.log(`🚀 Pogiri GP Bot is live on port ${PORT}`));
