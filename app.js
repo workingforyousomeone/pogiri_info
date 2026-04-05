@@ -6,7 +6,7 @@ const app = express();
 app.use(bodyParser.json());
 
 // --- మీ వివరాలు ఇక్కడ మార్చండి ---
-const TOKEN = "EAANbuq79KEgBRJvS6tUXfzsCeV3B0rRiqrAH0Sf5PXdpOX2Jxnm9mdbzQ1KG7xxu3QgvNxSgPtlUbkIdKzomLA6JYt8V7PSRYZAD5ELeDQ2NzesPZCGLsnSL7c2n6OZCqdMhSXaugz0wpvGPLymqNLwdJZAcb7BtgYlbDZB0gwC64M2TdPRpPWIeajlSR8r4AYFGLvpWXNBPZCNwbdp2nIAWmfWZASMTZBU55pZBWrXuzTlkSPb8oGEh2AiwvN159FIfjI1b1btZAZAdTCW6NW0C312".trim(); 
+const TOKEN = "EAANbuq79KEgBRNywQzNxUMSzeThOiDf2NLOu2AGV4OXaZBG4yQhR4edZC1p8IAWuzlli3bddmSnjZCZAIPKZA0hj9VdzAK667KZCnd7e18suAvAzKrmrDOCrm6TEzUlnbdx6Jt86ZBKPIuec8rS66q9fui5DcWcXPytdCJ4vZCvzGEi8bM2doCZBPZAZAqBrGnKRQZDZD".trim(); 
 const PHONE_ID = "1022576120942370";
 const SPREADSHEET_ID = "1Odobo-H043KZKfYdNpeyMADeEa7wb-k-UyLXD1n_sBM";
 const VERIFY_TOKEN = "pogiri_gp_2026"; 
